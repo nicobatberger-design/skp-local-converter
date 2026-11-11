@@ -66,6 +66,11 @@ def convert(
         raise ConversionError("Output must use the .glb extension.")
     if target.exists() and not overwrite:
         raise FileExistsError(f"Output already exists: {target} (pass --force to replace it)")
+    metadata_target = target.with_name(f"{target.stem}_metadata.json")
+    if metadata_target.exists() and not overwrite:
+        raise FileExistsError(
+            f"Metadata already exists: {metadata_target} (pass --force to replace it)"
+        )
 
     try:
         from openskp import SkpFile, SkpParseError
@@ -84,7 +89,8 @@ def convert(
             if source.suffix.lower() == ".zip"
             else source
         )
-        staged_output = working_dir / "converted.glb"
+        staged_output = working_dir / target.name
+        staged_metadata = working_dir / f"{target.stem}_metadata.json"
 
         print(f"Reading {model_path.name}...", flush=True)
         skp = SkpFile.open(str(model_path))
@@ -97,10 +103,17 @@ def convert(
         instanced_glb.export(skp, str(staged_output), textures=embed_textures)
         if not staged_output.is_file() or staged_output.stat().st_size == 0:
             raise ConversionError("The GLB exporter did not produce a valid output file.")
+        if not staged_metadata.is_file():
+            raise ConversionError("The GLB exporter did not produce its scene metadata.")
 
         if target.exists() and not overwrite:
             raise FileExistsError(f"Output already exists: {target} (pass --force to replace it)")
+        if metadata_target.exists() and not overwrite:
+            raise FileExistsError(
+                f"Metadata already exists: {metadata_target} (pass --force to replace it)"
+            )
         os.replace(staged_output, target)
+        os.replace(staged_metadata, metadata_target)
 
     return target
 

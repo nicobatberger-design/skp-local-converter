@@ -26,7 +26,7 @@ Pour convertir un `.skp` extrait directement :
 python tools/graphics/skp_to_glb.py "chemin\vers\modele.skp" "exports\modele.glb"
 ```
 
-Par défaut, les textures sont intégrées. `--no-textures` réduit la taille du résultat; `--force` remplace un GLB existant.
+Par défaut, les textures sont intégrées. `--no-textures` réduit la taille du résultat; `--force` remplace le GLB et son fichier compagnon `_metadata.json`, qui contient les calques et la hiérarchie des instances.
 
 ## Vérification
 
